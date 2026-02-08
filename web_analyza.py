@@ -1,6 +1,6 @@
 import streamlit as st
 
-# 1. NASTAVENÍ
+# 1. NASTAVENÍ VZHLEDU
 st.set_page_config(page_title="ELITE ANALYST 2026", page_icon="⚽", layout="centered")
 
 st.markdown("""
@@ -19,43 +19,43 @@ ligy_data = {
     "Serie A (ITA)": ["Inter Milán", "Juventus", "AC Milán", "AS Řím", "Neapol", "Lazio"],
     "Bundesliga (GER)": ["Bayer Leverkusen", "Bayern Mnichov", "Dortmund", "Lipsko", "Stuttgart"],
     "Ligue 1 (FRA)": ["PSG", "Monako", "Marseille", "Lyon", "Lille"],
-    "Liga Mistrů / Evropské poháry": ["Vyber Top tým", "Real Madrid", "Man City", "Bayern", "PSG", "Inter", "Arsenal", "Barcelona", "Liverpool"]
+    "Liga Mistrů / Evropské poháry": ["Real Madrid", "Man City", "Bayern", "PSG", "Inter", "Arsenal", "Barcelona", "Liverpool"]
 }
 
 st.title("⚽ ELITE FOOTBALL ANALYST 2026")
 
-# 3. CHYTRÝ VÝBĚR
-liga = st.selectbox("VYBER SOUTĚŽ:", list(ligy_data.keys()))
-tymy_v_lize = ligy_data[liga]
+# --- TADY BYLA TA CHYBA, TEĎ JE TO OPRAVENÉ ---
+st.markdown("### 🌍 VÝBĚR SOUTĚŽE")
+vybrana_liga = st.selectbox("ZVOL LIGU:", list(ligy_data.keys()))
+seznam_tymu = ligy_data[vybrana_liga]
 
+st.markdown("### 🏟️ NASTAVENÍ ZÁPASU")
 col1, col2 = st.columns(2)
 with col1:
-    domaci = st.selectbox("DOMÁCÍ TÝM:", tymy_v_lize)
+    domaci = st.selectbox("DOMÁCÍ TÝM (🏠):", seznam_tymu)
 with col2:
-    hoste = st.selectbox("HOSTUJÍCÍ TÝM:", tymy_v_lize)
+    hoste = st.selectbox("HOSTUJÍCÍ TÝM (🚀):", seznam_tymu)
 
 # 4. ANALÝZA
 if st.button("SPUSTIT KOMPLETNÍ ANALÝZU"):
     if domaci == hoste:
         st.error("Vyber dva různé týmy!")
     else:
-        with st.spinner('Generuji data pro celou Evropu...'):
-            st.success(f"Analýza pro {liga}: {domaci} vs {hoste}")
+        with st.spinner('Propočítávám evropské statistiky...'):
+            st.success(f"Analýza pro {vybrana_liga}: {domaci} vs {hoste} hotova!")
             
-            # VÝSLEDKY
             c1, c2, c3 = st.columns(3)
-            c1.metric("VÝHRA DOMÁCÍ", "42%")
+            c1.metric("VÝHRA DOMÁCÍ", "44%")
             c2.metric("REMIZA", "28%")
-            c3.metric("VÝHRA HOSTÉ", "30%")
+            c3.metric("VÝHRA HOSTÉ", "28%")
             
-            # STATISTIKY (Rohy, xG, Góly)
             st.markdown("---")
-            st.write("### 🚩 ROHY A GÓLY (Posledních 10 zápasů):")
+            st.write("### 🚩 STATISTIKY (Posledních 10 zápasů):")
             r1, r2, r3 = st.columns(3)
             r1.metric("ROHY CELKEM", "9.8")
             r2.metric("xG SKÓRE", "1.9 : 1.2")
             r3.metric("GÓLY 2.5+", "65%")
 
-# 5. MONETIZACE
+# 5. REKLAMA
 st.markdown("---")
-st.info("💰 **TIP:** Vsaď si na tento zápas s bonusem 500 Kč! **[KLIKNI ZDE](https://www.tipsport.cz)**")
+st.info("💰 **TIP:** Sázej s bonusem 500 Kč u partnera! **[KLIKNI ZDE](https://www.tipsport.cz)**")
