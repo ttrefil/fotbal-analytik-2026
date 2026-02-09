@@ -118,3 +118,4 @@ st.info("📊 **LOGIKA:** Model nyní zohledňuje sílu týmu (TOP favorité vs.
 
 
 
+
