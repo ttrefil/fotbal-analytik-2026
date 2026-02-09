@@ -2,7 +2,7 @@ import streamlit as st
 import random
 import requests
 
-# 1. NASTAVENÍ A DESIGN
+# 1. NASTAVENÍ A DESIGN (ZŮSTÁVÁ)
 st.set_page_config(page_title="ELITE ANALYST PRO 2026", page_icon="⚽", layout="centered")
 
 if 'pocet_navstev' not in st.session_state:
@@ -23,10 +23,10 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 2. TVŮJ API KLÍČ
+# 2. TVŮJ API KLÍČ (ZŮSTÁVÁ)
 API_KEY = "bffbce6e64e1e0d8d8bfc1276b8f8436"
 
-# 3. KOMPLETNÍ DATABÁZE TÝMŮ (ZACHOVÁNA V PLNÉM ROZSAHU)
+# 3. KOMPLETNÍ DATABÁZE TÝMŮ (ZACHOVÁNA KOMPLETNĚ)
 ligy_data = {
     "🏆 Liga mistrů": ["Arsenal", "Bayern Mnichov", "Liverpool", "Tottenham", "FC Barcelona", "Chelsea", "Sporting Lisabon", "Manchester City", "Real Madrid", "Inter Miláno", "Paris Saint-Germain", "Newcastle", "Juventus", "Atletico Madrid", "Atalanta Bergamo", "Leverkusen", "Dortmund", "Olympiakos", "Club Brugge", "Galatasaray", "Monaco", "FK Karabach", "Bodo/Glimt", "Benfica Lisabon", "Marseille", "Paphos FC", "Union SG", "PSV Eindhoven", "Bilbao", "Neapol", "FC Kodaň", "Ajax", "Frankfurt", "Slavia Praha"],
     "🇪🇺 Evropská liga": ["Lyon", "Aston Villa", "Midtjylland", "Betis", "Sevilla", "FC Porto", "Braga", "Freiburg", "AS Řím", "Genk", "Bologna", "Stuttgart", "Ferencváros", "Nottingham", "Plzeň", "Vigo", "PAOK", "Lille", "Fenerbahce", "Panathinaikos", "Celtic Glasgow", "Ludogorec Razgrad", "Dynamo"],
@@ -37,30 +37,37 @@ ligy_data = {
     "🇨🇿 Chance Liga": ["Slavia Praha", "Sparta Praha", "Jablonec", "Plzeň", "Liberec", "Karviná", "Hradec Králové", "Olomouc", "Zlín", "Pardubice", "Teplice", "Bohemians", "Ostrava", "Mladá Boleslav", "Slovácko", "Dukla Praha"]
 }
 
-# 4. ANALYTICKÁ LOGIKA (OPRAVA CHYBY NameError)
+# 4. OPRAVENÁ ANALYTICKÁ LOGIKA (POSÍLENÁ REMÍZA DLE PONZYHO SCHÉMATU)
 def ziskej_analyzu(d, h):
-    elita = ["Slavia Praha", "Sparta Praha", "Real Madrid", "Manchester City", "Liverpool", "Bayern Mnichov", "Arsenal", "FC Barcelona", "Inter Miláno", "Leverkusen", "Dortmund", "Juventus", "PSG", "Chelsea"]
+    elita = ["Slavia Praha", "Sparta Praha", "Real Madrid", "Manchester City", "Liverpool", "Bayern Mnichov", "Arsenal", "FC Barcelona", "Inter Miláno", "Leverkusen", "Dortmund", "Juventus", "PSG", "Chelsea", "Atletico Madrid"]
     
-    sila_d = 85 if d in elita else 50
-    sila_h = 85 if h in elita else 50
+    sila_d = 88 if d in elita else 52
+    sila_h = 88 if h in elita else 52
     
+    # Rozdíl sil
     rozdil = sila_d - sila_h
-    win_h = min(max(40 + rozdil + 12, 10), 90)
-    win_a = min(max(40 - rozdil, 10), 85)
     
-    if h in elita and d not in elita:
-        if win_a < 40: win_a = 45; win_h = 30
-        
-    remiza = 100 - win_h - win_a
+    # FIXNÍ ZÁKLAD REMÍZY (Aby nebyla 3% u favoritů)
+    # Reálná pravděpodobnost remízy ve fotbale se pohybuje kolem 22-28%
+    zaklad_remiza = 25 - (abs(rozdil) / 5)
+    remiza = max(18, int(zaklad_remiza)) # Minimum 18% pro vyrovnanost
     
-    # OPRAVA: Definování proměnných xgh a xga, aby nedocházelo k chybě NameError
-    xgh = round((random.uniform(1.3, 2.5) + (rozdil/40)) * 1.12, 2)
-    xga = round(random.uniform(0.9, 2.0) - (rozdil/40), 2)
-    corn = round(random.uniform(8.0, 12.0) + (sila_d/100), 1)
+    # Zbytek procent se rozdělí mezi výhru a prohru
+    zbytek = 100 - remiza
+    zaklad_win_d = (zbytek / 2) + (rozdil / 1.5)
+    
+    # Přidání tvé 12% výhody domácích
+    win_h = min(max(zaklad_win_d + 12, 5), 85)
+    win_a = 100 - remiza - win_h
+    
+    # Statistické xG a rohy
+    xgh = round((random.uniform(1.4, 2.6) + (rozdil/35)) * 1.12, 2)
+    xga = round(random.uniform(1.0, 2.1) - (rozdil/35), 2)
+    corn = round(random.uniform(8.5, 12.5) + (sila_d/100), 1)
     
     return int(win_h), int(remiza), int(win_a), xgh, xga, corn
 
-# 5. UI APLIKACE
+# 5. UI APLIKACE (ZŮSTÁVÁ)
 st.title("⚽ PREMIUM ANALYST 2026")
 
 liga_vyber = st.selectbox("ZVOLIT SOUTĚŽ:", list(ligy_data.keys()))
@@ -72,7 +79,6 @@ with c2: t_hoste = st.selectbox("HOSTÉ (🚀):", seznam_tymu, index=1 if len(se
 
 if st.button("SPUSTIT ANALÝZU Z API DATA"):
     with st.spinner('Analyzuji statistiky z API...'):
-        # Volání opravené funkce
         wh, dr, wa, res_xgh, res_xga, corn = ziskej_analyzu(t_domaci, t_hoste)
         st.success(f"Analýza {t_domaci} vs {t_hoste} hotova.")
         
