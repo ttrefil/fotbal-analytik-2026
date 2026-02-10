@@ -3,10 +3,9 @@ import random
 import requests
 import math
 
-# 1. DESIGN A POZADÍ (Nová grafika, algoritmus netknut)
+# 1. DESIGN A POZADÍ (Vylepšené stínování a boxy)
 st.set_page_config(page_title="ELITE ANALYST PRO 2026", page_icon="⚽", layout="centered")
 
-# Implementace obrázku na pozadí s tmavým filtrem pro čitelnost
 page_bg_img = '''
 <style>
 [data-testid="stAppViewContainer"] {
@@ -18,8 +17,18 @@ page_bg_img = '''
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Tmavý filtr */
+    background-color: rgba(0, 0, 0, 0.7);
 }
+
+/* Efekt stínování pro hlavní boxy */
+div[data-testid="stVerticalBlock"] > div {
+    background-color: rgba(30, 33, 48, 0.5);
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.6); /* Stín pod boxy */
+}
+
+/* Styl pro tlačítko */
 div.stButton > button {
     width: 100%;
     height: 50px;
@@ -30,6 +39,7 @@ div.stButton > button {
     border-radius: 10px;
     border: none;
 }
+
 .email-header {
     text-align: right;
     font-size: 14px;
@@ -41,7 +51,6 @@ div.stButton > button {
 '''
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# Email v pravém horním rohu
 st.markdown("<div class='email-header'>připomínky na email: trefilos@gmail.com</div>", unsafe_allow_html=True)
 
 if 'pocet_navstev' not in st.session_state:
@@ -49,14 +58,12 @@ if 'pocet_navstev' not in st.session_state:
 st.session_state.pocet_navstev += 1
 
 st.markdown(f"""
-    <div style='text-align: center; background-color: rgba(30, 33, 48, 0.8); padding: 10px; border-radius: 10px; border: 1px solid #00ff00; position: relative;'>
+    <div style='text-align: center; background-color: rgba(30, 33, 48, 0.85); padding: 10px; border-radius: 10px; border: 1px solid #00ff00; position: relative;'>
         <h4 style='margin:0; color: white;'>📈 POČET DNEŠNÍCH ANALÝZ: {st.session_state.pocet_navstev}</h4>
     </div>
     """, unsafe_allow_html=True)
 
 # 2. API LOGIKA (PŮVODNÍ - NEDOTČENO)
-API_KEY = "bffbce6e64e1e0d8d8bfc1276b8f8436"
-
 def get_poisson_probability(lmbda, k):
     return (math.pow(lmbda, k) * math.exp(-lmbda)) / math.factorial(k)
 
@@ -117,13 +124,13 @@ if st.button("SPUSTIT ANALÝZU"):
         s2.metric("ROHY (PRŮMĚR)", f"{round(random.uniform(9.1, 11.2), 1)}")
         s3.metric("OVER 2.5 GÓLŮ", f"{int((xg_d + xg_h) * 25)}%")
 
-# DECENTNÍ REKLAMNÍ OKNO
+# NOVÉ UPRAVENÉ REKLAMNÍ OKNO (Zvýšené, jiný odstín zelené)
 st.markdown("""
-    <div style='text-align: center; background-color: rgba(30, 33, 48, 0.7); padding: 5px; border-radius: 5px; border: 1px dashed #555; margin-top: 50px;'>
-        <p style='color: #bbb; font-size: 13px; margin: 0;'>Zde může být vaše reklama | Kontaktujte nás pro spolupráci</p>
+    <div style='text-align: center; background-color: rgba(0, 50, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px dashed #00ff00; margin-top: 50px;'>
+        <p style='color: #90ee90; font-size: 14px; margin: 0; font-weight: bold;'>ZDE MŮŽE BÝT VAŠE REKLAMA</p>
+        <p style='color: #ccc; font-size: 12px; margin: 5px 0 0 0;'>Kontaktujte nás pro exkluzivní spolupráci</p>
     </div>
     """, unsafe_allow_html=True)
-
 
 
 
