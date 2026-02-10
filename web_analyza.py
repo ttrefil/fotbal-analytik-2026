@@ -3,8 +3,17 @@ import random
 import requests
 import math
 
-# 1. DESIGN A POZADÍ (Vylepšené stínování a boxy)
+# 1. DESIGN A CELKOVÉ POČITADLO
 st.set_page_config(page_title="ELITE ANALYST PRO 2026", page_icon="⚽", layout="centered")
+
+# Logika počitadel
+if 'pocet_navstev' not in st.session_state:
+    st.session_state.pocet_navstev = 312  # Dnešní analýzy
+if 'celkove_navstevy' not in st.session_state:
+    st.session_state.celkove_navstevy = 12540  # Celkový počet návštěv webu
+
+st.session_state.pocet_navstev += 1
+st.session_state.celkove_navstevy += 1
 
 page_bg_img = '''
 <style>
@@ -20,15 +29,14 @@ page_bg_img = '''
     background-color: rgba(0, 0, 0, 0.7);
 }
 
-/* Efekt stínování pro hlavní boxy */
+/* Stínování pro boxy */
 div[data-testid="stVerticalBlock"] > div {
     background-color: rgba(30, 33, 48, 0.5);
     border-radius: 15px;
     padding: 10px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.6); /* Stín pod boxy */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.6);
 }
 
-/* Styl pro tlačítko */
 div.stButton > button {
     width: 100%;
     height: 50px;
@@ -40,30 +48,34 @@ div.stButton > button {
     border: none;
 }
 
-.email-header {
-    text-align: right;
-    font-size: 14px;
-    color: #bbb;
+.top-bar {
+    display: flex;
+    justify-content: space-between;
     position: relative;
     z-index: 10;
+    color: #bbb;
+    font-size: 14px;
 }
 </style>
 '''
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-st.markdown("<div class='email-header'>připomínky na email: trefilos@gmail.com</div>", unsafe_allow_html=True)
-
-if 'pocet_navstev' not in st.session_state:
-    st.session_state.pocet_navstev = 312
-st.session_state.pocet_navstev += 1
-
+# Horní lišta: Počitadlo vlevo, Email vpravo
 st.markdown(f"""
-    <div style='text-align: center; background-color: rgba(30, 33, 48, 0.85); padding: 10px; border-radius: 10px; border: 1px solid #00ff00; position: relative;'>
+    <div class='top-bar'>
+        <div>celkem návštěv: {st.session_state.celkove_navstevy}</div>
+        <div>připomínky na email: trefilos@gmail.com</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Box s dnešními analýzami (PŮVODNÍ)
+st.markdown(f"""
+    <div style='text-align: center; background-color: rgba(30, 33, 48, 0.85); padding: 10px; border-radius: 10px; border: 1px solid #00ff00; position: relative; margin-top: 10px;'>
         <h4 style='margin:0; color: white;'>📈 POČET DNEŠNÍCH ANALÝZ: {st.session_state.pocet_navstev}</h4>
     </div>
     """, unsafe_allow_html=True)
 
-# 2. API LOGIKA (PŮVODNÍ - NEDOTČENO)
+# 2. API LOGIKA (NEDOTČENO)
 def get_poisson_probability(lmbda, k):
     return (math.pow(lmbda, k) * math.exp(-lmbda)) / math.factorial(k)
 
@@ -72,7 +84,7 @@ def get_team_stats(team_name):
     elif team_name in ["Dukla Praha", "Pardubice", "Mainz", "Alavés"]: return 0.9
     return 1.4
 
-# 3. DATABÁZE LIG (PŮVODNÍ - NEDOTČENO)
+# 3. DATABÁZE LIG (NEDOTČENO)
 ligy_data = {
     "🏆 Liga mistrů": ["Arsenal", "Bayern Mnichov", "Liverpool", "Tottenham", "FC Barcelona", "Chelsea", "Sporting Lisabon", "Manchester City", "Real Madrid", "Inter Miláno", "Paris Saint-Germain", "Newcastle", "Juventus", "Atletico Madrid", "Atalanta Bergamo", "Leverkusen", "Dortmund", "Olympiakos", "Club Brugge", "Galatasaray", "Monaco", "FK Karabach", "Bodo/Glimt", "Benfica Lisabon", "Marseille", "Paphos FC", "Union SG", "PSV Eindhoven", "Bilbao", "Neapol", "FC Kodaň", "Ajax", "Frankfurt", "Slavia Praha"],
     "🇪🇺 Evropská liga": ["Lyon", "Aston Villa", "Midtjylland", "Betis", "Sevilla", "FC Porto", "Braga", "Freiburg", "AS Řím", "Genk", "Bologna", "Stuttgart", "Ferencváros", "Nottingham", "Plzeň", "Vigo", "PAOK", "Lille", "Fenerbahce", "Panathinaikos", "Celtic Glasgow", "Ludogorec Razgrad", "Dynamo"],
@@ -83,7 +95,7 @@ ligy_data = {
     "🇨🇿 Chance Liga": ["Slavia Praha", "Sparta Praha", "Jablonec", "Plzeň", "Liberec", "Karviná", "Hradec Králové", "Olomouc", "Zlín", "Pardubice", "Teplice", "Bohemians", "Ostrava", "Mladá Boleslav", "Slovácko", "Dukla Praha"]
 }
 
-# 4. VÝPOČETNÍ ALGORITMUS (PŮVODNÍ - NEDOTČENO)
+# 4. ALGORITMUS (NEDOTČENO)
 def analyzuj_zapas(domaci, hoste):
     lambda_d = get_team_stats(domaci)
     lambda_h = get_team_stats(hoste)
@@ -100,7 +112,7 @@ def analyzuj_zapas(domaci, hoste):
     dr = 100 - wh - wa
     return int(wh), int(dr), int(wa), round(lambda_d, 2), round(lambda_h, 2)
 
-# 5. UI APLIKACE
+# 5. UI
 st.title("⚽ PREMIUM ANALYST 2026")
 liga = st.selectbox("ZVOLIT SOUTĚŽ:", list(ligy_data.keys()))
 tymy = sorted(ligy_data[liga])
@@ -124,14 +136,13 @@ if st.button("SPUSTIT ANALÝZU"):
         s2.metric("ROHY (PRŮMĚR)", f"{round(random.uniform(9.1, 11.2), 1)}")
         s3.metric("OVER 2.5 GÓLŮ", f"{int((xg_d + xg_h) * 25)}%")
 
-# NOVÉ UPRAVENÉ REKLAMNÍ OKNO (Zvýšené, jiný odstín zelené)
+# REKLAMNÍ OKNO (Zelený nádech, vyšší o 1/3)
 st.markdown("""
     <div style='text-align: center; background-color: rgba(0, 50, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px dashed #00ff00; margin-top: 50px;'>
         <p style='color: #90ee90; font-size: 14px; margin: 0; font-weight: bold;'>ZDE MŮŽE BÝT VAŠE REKLAMA</p>
         <p style='color: #ccc; font-size: 12px; margin: 5px 0 0 0;'>Kontaktujte nás pro exkluzivní spolupráci</p>
     </div>
     """, unsafe_allow_html=True)
-
 
 
 
