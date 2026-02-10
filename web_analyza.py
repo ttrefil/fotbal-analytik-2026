@@ -2,19 +2,35 @@ import streamlit as st
 import random
 import requests
 import math
+import os
 
-# 1. DESIGN A CELKOVÉ POČITADLO
+# 1. DESIGN A LOGIKA TRVALÉHO POČITADLA
 st.set_page_config(page_title="ELITE ANALYST PRO 2026", page_icon="⚽", layout="centered")
 
-# Logika počitadel
+# Funkce pro trvalé ukládání celkových návštěv do souboru
+def manage_total_visits():
+    file_path = "total_visits.txt"
+    if not os.path.exists(file_path):
+        with open(file_path, "w") as f: f.write("12540") # Počáteční hodnota
+    
+    with open(file_path, "r") as f:
+        current_total = int(f.read())
+    
+    # Zvýšíme o 1 při každém načtení stránky
+    new_total = current_total + 1
+    with open(file_path, "w") as f:
+        f.write(str(new_total))
+    return new_total
+
+# Počítadlo pro aktuální relaci (dnešní analýzy - resetuje se při restartu)
 if 'pocet_navstev' not in st.session_state:
-    st.session_state.pocet_navstev = 312  # Dnešní analýzy
-if 'celkove_navstevy' not in st.session_state:
-    st.session_state.celkove_navstevy = 12540  # Celkový počet návštěv webu
-
+    st.session_state.pocet_navstev = 312
 st.session_state.pocet_navstev += 1
-st.session_state.celkove_navstevy += 1
 
+# Získání trvalého čísla
+celkove_navstevy = manage_total_visits()
+
+# CSS STYLY (NEDOTČENO)
 page_bg_img = '''
 <style>
 [data-testid="stAppViewContainer"] {
@@ -24,51 +40,34 @@ page_bg_img = '''
 }
 [data-testid="stAppViewContainer"]::before {
     content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.7);
 }
-
-/* Stínování pro boxy */
 div[data-testid="stVerticalBlock"] > div {
     background-color: rgba(30, 33, 48, 0.5);
-    border-radius: 15px;
-    padding: 10px;
+    border-radius: 15px; padding: 10px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.6);
 }
-
 div.stButton > button {
-    width: 100%;
-    height: 50px;
+    width: 100%; height: 50px;
     background-color: #00ff00 !important;
     color: black !important;
-    font-weight: bold;
-    font-size: 18px;
-    border-radius: 10px;
-    border: none;
+    font-weight: bold; font-size: 18px;
+    border-radius: 10px; border: none;
 }
-
 .top-bar {
-    display: flex;
-    justify-content: space-between;
-    position: relative;
-    z-index: 10;
-    color: #bbb;
-    font-size: 14px;
+    display: flex; justify-content: space-between;
+    position: relative; z-index: 10;
+    color: #bbb; font-size: 14px;
 }
 </style>
 '''
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# Horní lišta: Počitadlo vlevo, Email vpravo
-st.markdown(f"""
-    <div class='top-bar'>
-        <div>celkem návštěv: {st.session_state.celkove_navstevy}</div>
-        <div>připomínky na email: trefilos@gmail.com</div>
-    </div>
-    """, unsafe_allow_html=True)
+# Horní lišta
+st.markdown(f"<div class='top-bar'><div>celkem návštěv: {celkove_navstevy}</div><div>připomínky na email: trefilos@gmail.com</div></div>", unsafe_allow_html=True)
 
-# Box s dnešními analýzami (PŮVODNÍ)
+# Box dnešních analýz
 st.markdown(f"""
     <div style='text-align: center; background-color: rgba(30, 33, 48, 0.85); padding: 10px; border-radius: 10px; border: 1px solid #00ff00; position: relative; margin-top: 10px;'>
         <h4 style='margin:0; color: white;'>📈 POČET DNEŠNÍCH ANALÝZ: {st.session_state.pocet_navstev}</h4>
@@ -136,14 +135,13 @@ if st.button("SPUSTIT ANALÝZU"):
         s2.metric("ROHY (PRŮMĚR)", f"{round(random.uniform(9.1, 11.2), 1)}")
         s3.metric("OVER 2.5 GÓLŮ", f"{int((xg_d + xg_h) * 25)}%")
 
-# REKLAMNÍ OKNO (Zelený nádech, vyšší o 1/3)
+# REKLAMNÍ OKNO (NEDOTČENO)
 st.markdown("""
     <div style='text-align: center; background-color: rgba(0, 50, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px dashed #00ff00; margin-top: 50px;'>
         <p style='color: #90ee90; font-size: 14px; margin: 0; font-weight: bold;'>ZDE MŮŽE BÝT VAŠE REKLAMA</p>
         <p style='color: #ccc; font-size: 12px; margin: 5px 0 0 0;'>Kontaktujte nás pro exkluzivní spolupráci</p>
     </div>
     """, unsafe_allow_html=True)
-
 
 
 
