@@ -3,50 +3,58 @@ import random
 import requests
 import math
 
-# 1. NASTAVENÍ A DESIGN (Vylepšený vizuál)
+# 1. DESIGN A POZADÍ (Nová grafika, algoritmus netknut)
 st.set_page_config(page_title="ELITE ANALYST PRO 2026", page_icon="⚽", layout="centered")
 
-# CSS pro úpravu tlačítka a textu (Zelené a větší tlačítko)
-st.markdown("""
-    <style>
-    div.stButton > button {
-        width: 100%;
-        height: 50px;
-        background-color: #00ff00 !important;
-        color: black !important;
-        font-weight: bold;
-        font-size: 18px;
-        border-radius: 10px;
-        border: none;
-        transition: 0.3s;
-    }
-    div.stButton > button:hover {
-        background-color: #00cc00 !important;
-        transform: scale(1.02);
-    }
-    .email-footer {
-        text-align: right;
-        font-size: 14px;
-        color: #888;
-        margin-top: -20px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# Implementace obrázku na pozadí s tmavým filtrem pro čitelnost
+page_bg_img = '''
+<style>
+[data-testid="stAppViewContainer"] {
+    background-image: url("https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2000&auto=format&fit=crop");
+    background-size: cover;
+    background-position: center;
+}
+[data-testid="stAppViewContainer"]::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Tmavý filtr */
+}
+div.stButton > button {
+    width: 100%;
+    height: 50px;
+    background-color: #00ff00 !important;
+    color: black !important;
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 10px;
+    border: none;
+}
+.email-header {
+    text-align: right;
+    font-size: 14px;
+    color: #bbb;
+    position: relative;
+    z-index: 10;
+}
+</style>
+'''
+st.markdown(page_bg_img, unsafe_allow_html=True)
 
 # Email v pravém horním rohu
-st.markdown("<div class='email-footer'>připomínky na email: trefilos@gmail.com</div>", unsafe_allow_html=True)
+st.markdown("<div class='email-header'>připomínky na email: trefilos@gmail.com</div>", unsafe_allow_html=True)
 
 if 'pocet_navstev' not in st.session_state:
     st.session_state.pocet_navstev = 312
 st.session_state.pocet_navstev += 1
 
 st.markdown(f"""
-    <div style='text-align: center; background-color: #1e2130; padding: 10px; border-radius: 10px; border: 1px solid #00ff00; margin-top: 10px;'>
+    <div style='text-align: center; background-color: rgba(30, 33, 48, 0.8); padding: 10px; border-radius: 10px; border: 1px solid #00ff00; position: relative;'>
         <h4 style='margin:0; color: white;'>📈 POČET DNEŠNÍCH ANALÝZ: {st.session_state.pocet_navstev}</h4>
     </div>
     """, unsafe_allow_html=True)
 
-# 2. API LOGIKA (NEDOTČENO)
+# 2. API LOGIKA (PŮVODNÍ - NEDOTČENO)
 API_KEY = "bffbce6e64e1e0d8d8bfc1276b8f8436"
 
 def get_poisson_probability(lmbda, k):
@@ -57,7 +65,7 @@ def get_team_stats(team_name):
     elif team_name in ["Dukla Praha", "Pardubice", "Mainz", "Alavés"]: return 0.9
     return 1.4
 
-# 3. DATABÁZE LIG (NEDOTČENO)
+# 3. DATABÁZE LIG (PŮVODNÍ - NEDOTČENO)
 ligy_data = {
     "🏆 Liga mistrů": ["Arsenal", "Bayern Mnichov", "Liverpool", "Tottenham", "FC Barcelona", "Chelsea", "Sporting Lisabon", "Manchester City", "Real Madrid", "Inter Miláno", "Paris Saint-Germain", "Newcastle", "Juventus", "Atletico Madrid", "Atalanta Bergamo", "Leverkusen", "Dortmund", "Olympiakos", "Club Brugge", "Galatasaray", "Monaco", "FK Karabach", "Bodo/Glimt", "Benfica Lisabon", "Marseille", "Paphos FC", "Union SG", "PSV Eindhoven", "Bilbao", "Neapol", "FC Kodaň", "Ajax", "Frankfurt", "Slavia Praha"],
     "🇪🇺 Evropská liga": ["Lyon", "Aston Villa", "Midtjylland", "Betis", "Sevilla", "FC Porto", "Braga", "Freiburg", "AS Řím", "Genk", "Bologna", "Stuttgart", "Ferencváros", "Nottingham", "Plzeň", "Vigo", "PAOK", "Lille", "Fenerbahce", "Panathinaikos", "Celtic Glasgow", "Ludogorec Razgrad", "Dynamo"],
@@ -68,7 +76,7 @@ ligy_data = {
     "🇨🇿 Chance Liga": ["Slavia Praha", "Sparta Praha", "Jablonec", "Plzeň", "Liberec", "Karviná", "Hradec Králové", "Olomouc", "Zlín", "Pardubice", "Teplice", "Bohemians", "Ostrava", "Mladá Boleslav", "Slovácko", "Dukla Praha"]
 }
 
-# 4. VÝPOČETNÍ ALGORITMUS (NEDOTČENO)
+# 4. VÝPOČETNÍ ALGORITMUS (PŮVODNÍ - NEDOTČENO)
 def analyzuj_zapas(domaci, hoste):
     lambda_d = get_team_stats(domaci)
     lambda_h = get_team_stats(hoste)
@@ -94,7 +102,6 @@ c1, c2 = st.columns(2)
 with c1: d_team = st.selectbox("DOMÁCÍ (🏠):", tymy)
 with c2: h_team = st.selectbox("HOSTÉ (🚀):", tymy, index=1 if len(tymy)>1 else 0)
 
-# Tlačítko (teď zelené a větší)
 if st.button("SPUSTIT ANALÝZU"):
     with st.spinner('Zpracovávám data...'):
         wh, dr, wa, xg_d, xg_h = analyzuj_zapas(d_team, h_team)
@@ -110,10 +117,10 @@ if st.button("SPUSTIT ANALÝZU"):
         s2.metric("ROHY (PRŮMĚR)", f"{round(random.uniform(9.1, 11.2), 1)}")
         s3.metric("OVER 2.5 GÓLŮ", f"{int((xg_d + xg_h) * 25)}%")
 
-# NOVÉ DECENTNÍ REKLAMNÍ OKNO (Nízký obdélník)
+# DECENTNÍ REKLAMNÍ OKNO
 st.markdown("""
-    <div style='text-align: center; background-color: #1e2130; padding: 5px; border-radius: 5px; border: 1px dashed #555; margin-top: 50px;'>
-        <p style='color: #888; font-size: 13px; margin: 0;'>Zde může být vaše reklama | Kontaktujte nás pro spolupráci</p>
+    <div style='text-align: center; background-color: rgba(30, 33, 48, 0.7); padding: 5px; border-radius: 5px; border: 1px dashed #555; margin-top: 50px;'>
+        <p style='color: #bbb; font-size: 13px; margin: 0;'>Zde může být vaše reklama | Kontaktujte nás pro spolupráci</p>
     </div>
     """, unsafe_allow_html=True)
 
