@@ -3,7 +3,7 @@ import random
 import math
 import os
 
-# 1. TRVALÉ POČITADLO A DESIGN (NEDOTČENO)
+# 1. DESIGN A TRVALÉ POČITADLO (ZACHOVÁNO)
 st.set_page_config(page_title="ELITE ANALYST PRO 2026", page_icon="⚽", layout="centered")
 
 def manage_total_visits():
@@ -64,22 +64,17 @@ st.markdown(f"""
     </div>
     """, unsafe_allow_html=True)
 
-# 2. INTELIGENTNÍ LOGIKA SÍLY PODLE LIGY
+# 2. LOGIKA SÍLY PODLE KONTEXTU LIGY
 def fetch_api_stats(team_name, zvolena_liga):
-    # Definice gigantů
     giants = ["Bayern Mnichov", "Manchester City", "Real Madrid", "Arsenal", "Aston Villa", "Liverpool", "FC Barcelona", "Inter Milán"]
     ceska_top = ["Slavia Praha", "Sparta Praha", "Plzeň"]
     
-    # Základní xG podle kontextu
     if team_name in giants:
-        base_xg = 2.2 # Giganti jsou silní všude
+        base_xg = 2.2 
     elif team_name in ceska_top:
-        if "Chance Liga" in zvolena_liga:
-            base_xg = 2.1 # V české lize jsou mašiny
-        else:
-            base_xg = 1.1 # V Evropě jsou outsideři proti velkým
+        base_xg = 2.1 if "Chance Liga" in zvolena_liga else 1.1
     else:
-        base_xg = 1.3 # Průměrné týmy
+        base_xg = 1.3 
         
     return {
         "xg": round(random.uniform(base_xg - 0.1, base_xg + 0.2), 2),
@@ -87,7 +82,7 @@ def fetch_api_stats(team_name, zvolena_liga):
         "cards": round(random.uniform(1.2, 3.0), 1)
     }
 
-# 3. DATABÁZE (ZACHOVÁNO)
+# 3. KOMPLETNÍ DATABÁZE (ZACHOVÁNO)
 ligy_data = {
     "🏆 Liga mistrů": ["Arsenal", "Bayern Mnichov", "Liverpool", "Tottenham", "FC Barcelona", "Chelsea", "Sporting Lisabon", "Manchester City", "Real Madrid", "Inter Miláno", "Paris Saint-Germain", "Newcastle", "Juventus", "Atletico Madrid", "Atalanta Bergamo", "Leverkusen", "Dortmund", "Olympiakos", "Club Brugge", "Galatasaray", "Monaco", "FK Karabach", "Bodo/Glimt", "Benfica Lisabon", "Marseille", "Paphos FC", "Union SG", "PSV Eindhoven", "Bilbao", "Neapol", "FC Kodaň", "Ajax", "Frankfurt", "Slavia Praha"],
     "🇪🇺 Evropská liga": ["Lyon", "Aston Villa", "Midtjylland", "Betis", "Sevilla", "FC Porto", "Braga", "Freiburg", "AS Řím", "Genk", "Bologna", "Stuttgart", "Ferencváros", "Nottingham", "Plzeň", "Vigo", "PAOK", "Lille", "Fenerbahce", "Panathinaikos", "Celtic Glasgow", "Ludogorec Razgrad", "Dynamo"],
@@ -98,7 +93,7 @@ ligy_data = {
     "🇨🇿 Chance Liga": ["Slavia Praha", "Sparta Praha", "Jablonec", "Plzeň", "Liberec", "Karviná", "Hradec Králové", "Olomouc", "Zlín", "Pardubice", "Teplice", "Bohemians", "Ostrava", "Mladá Boleslav", "Slovácko", "Dukla Praha"]
 }
 
-# 4. ALGORITMUS (Poisson + 3% Home)
+# 4. ALGORITMUS (+3% DOMÁCÍ BONUS)
 def get_poisson_probability(lmbda, k):
     return (math.pow(lmbda, k) * math.exp(-lmbda)) / math.factorial(k)
 
@@ -121,7 +116,7 @@ def analyzuj_zapas(domaci, hoste, liga_nazev):
     
     return int(wh), int(dr), int(wa), ds, hs
 
-# 5. UI
+# 5. UI S KONTROLOU DUPLICITY
 st.title("⚽ PREMIUM ANALYST 2026")
 liga = st.selectbox("ZVOLIT SOUTĚŽ:", list(ligy_data.keys()))
 tymy = sorted(ligy_data[liga])
@@ -131,30 +126,33 @@ with c1: d_team = st.selectbox("DOMÁCÍ (🏠):", tymy)
 with c2: h_team = st.selectbox("HOSTÉ (🚀):", tymy, index=1 if len(tymy)>1 else 0)
 
 if st.button("SPUSTIT ANALÝZU"):
-    with st.spinner('Analyzuji historii z API...'):
-        wh, dr, wa, ds, hs = analyzuj_zapas(d_team, h_team, liga)
-        st.success(f"Analýza {d_team} vs {h_team} dokončena.")
-        
-        r1, r2, r3 = st.columns(3)
-        r1.metric("VÝHRA DOMÁCÍ", f"{wh}%")
-        r2.metric("REMIZA", f"{dr}%")
-        r3.metric("VÝHRA HOSTÉ", f"{wa}%")
-        
-        st.markdown("---")
-        st.write("### 🚩 DETAILNÍ PŘEDPOVĚĎ (Z HISTORIE API)")
-        s1, s2, s3 = st.columns(3)
-        with s1:
-            st.write("**Očekávané xG**")
-            st.metric(d_team, ds["xg"])
-            st.metric(h_team, hs["xg"])
-        with s2:
-            st.write("**Průměr rohů**")
-            st.metric(d_team, ds["corners"])
-            st.metric(h_team, hs["corners"])
-        with s3:
-            st.write("**Žluté karty**")
-            st.metric(d_team, ds["cards"])
-            st.metric(h_team, hs["cards"])
+    if d_team == h_team:
+        st.warning("⚠️ CHYBA: Nemůžete vybrat dva stejné týmy proti sobě. Zvolte jiného soupeře.")
+    else:
+        with st.spinner('Analyzuji historii z API...'):
+            wh, dr, wa, ds, hs = analyzuj_zapas(d_team, h_team, liga)
+            st.success(f"Analýza {d_team} vs {h_team} dokončena.")
+            
+            r1, r2, r3 = st.columns(3)
+            r1.metric("VÝHRA DOMÁCÍ", f"{wh}%")
+            r2.metric("REMIZA", f"{dr}%")
+            r3.metric("VÝHRA HOSTÉ", f"{wa}%")
+            
+            st.markdown("---")
+            st.write("### 🚩 DETAILNÍ PŘEDPOVĚĎ (Z HISTORIE API)")
+            s1, s2, s3 = st.columns(3)
+            with s1:
+                st.write("**Očekávané xG**")
+                st.metric(d_team, ds["xg"])
+                st.metric(h_team, hs["xg"])
+            with s2:
+                st.write("**Průměr rohů**")
+                st.metric(d_team, ds["corners"])
+                st.metric(h_team, hs["corners"])
+            with s3:
+                st.write("**Žluté karty**")
+                st.metric(d_team, ds["cards"])
+                st.metric(h_team, hs["cards"])
 
 st.markdown("""
     <div style='text-align: center; background-color: rgba(0, 50, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px dashed #00ff00; margin-top: 50px;'>
@@ -162,6 +160,7 @@ st.markdown("""
         <p style='color: #ccc; font-size: 12px; margin: 5px 0 0 0;'>Kontaktujte nás pro exkluzivní spolupráci</p>
     </div>
     """, unsafe_allow_html=True)
+
 
 
 
