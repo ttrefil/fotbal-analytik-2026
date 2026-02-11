@@ -3,10 +3,9 @@ import random
 import math
 import os
 
-# 1. DESIGN A LOGIKA POČITADEL
+# 1. DESIGN A TRVALÉ UKLÁDÁNÍ
 st.set_page_config(page_title="ELITE ANALYST PRO 2026", page_icon="⚽", layout="centered")
 
-# Funkce pro trvalé ukládání celkových návštěv
 def manage_total_visits():
     file_path = "total_visits.txt"
     if not os.path.exists(file_path):
@@ -18,13 +17,12 @@ def manage_total_visits():
     with open(file_path, "w") as f: f.write(str(new_total))
     return new_total
 
-# Počitadlo dnešních analýz (v rámci jedné relace)
 if 'pocet_navstev' not in st.session_state:
     st.session_state.pocet_navstev = 312
 st.session_state.pocet_navstev += 1
 celkove_navstevy = manage_total_visits()
 
-# CSS - Zachování tvého stylu s opravou pro dvojité počitadlo
+# CSS - Opravené f-stringy pro stylování
 st.markdown(f'''
 <style>
 [data-testid="stAppViewContainer"] {{
@@ -54,16 +52,13 @@ div.stButton > button {{
     display: flex; justify-content: space-between; position: relative;
     z-index: 10; color: #ffffff; font-size: 13px; font-weight: bold;
 }}
-.stats-box {{
-    display: flex; gap: 15px;
-}}
 </style>
 ''', unsafe_allow_html=True)
 
-# Horní lišta s dvojitým počitadlem vlevo a emailem vpravo
+# Horní lišta: DNES a CELKEM vedle sebe
 st.markdown(f"""
     <div class='top-bar'>
-        <div class='stats-box'>
+        <div style='display: flex; gap: 20px;'>
             <span>📅 DNES: {st.session_state.pocet_navstev}</span>
             <span>🌍 CELKEM: {celkove_navstevy}</span>
         </div>
@@ -71,18 +66,18 @@ st.markdown(f"""
     </div>
     """, unsafe_allow_html=True)
 
-# 2. API / STATISTIKY (NEDOTČENO)
+# 2. LOGIKA STATISTIK
 def get_live_stats_from_history(team_name):
     base_xg = 1.4
     if team_name in ["Plzeň", "Sparta Praha", "Slavia Praha", "Arsenal", "Real Madrid", "Ajax"]: base_xg = 2.1
-    return {{
+    return {
         "xg": round(random.uniform(base_xg - 0.2, base_xg + 0.3), 2),
         "corners": round(random.uniform(4.1, 6.9), 1),
         "cards": round(random.uniform(1.2, 3.1), 1)
-    }}
+    }
 
-# 3. DATABÁZE (NEDOTČENO)
-ligy_data = {{
+# 3. DATABÁZE LIG (Opravené závorky zde!)
+ligy_data = {
     "🏆 Liga mistrů": ["Arsenal", "Bayern Mnichov", "Liverpool", "Tottenham", "FC Barcelona", "Chelsea", "Sporting Lisabon", "Manchester City", "Real Madrid", "Inter Miláno", "Paris Saint-Germain", "Newcastle", "Juventus", "Atletico Madrid", "Atalanta Bergamo", "Leverkusen", "Dortmund", "Olympiakos", "Club Brugge", "Galatasaray", "Monaco", "FK Karabach", "Bodo/Glimt", "Benfica Lisabon", "Marseille", "Paphos FC", "Union SG", "PSV Eindhoven", "Bilbao", "Neapol", "FC Kodaň", "Ajax", "Frankfurt", "Slavia Praha"],
     "🇪🇺 Evropská liga": ["Lyon", "Aston Villa", "Midtjylland", "Betis", "Sevilla", "FC Porto", "Braga", "Freiburg", "AS Řím", "Genk", "Bologna", "Stuttgart", "Ferencváros", "Nottingham", "Plzeň", "Vigo", "PAOK", "Lille", "Fenerbahce", "Panathinaikos", "Celtic Glasgow", "Ludogorec Razgrad", "Dynamo"],
     "🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League": ["Arsenal", "Manchester City", "Aston Villa", "Manchester United", "Chelsea", "Liverpool", "Brentford", "Everton", "Sunderland", "Fullham", "Bournemouth", "Newcastle", "Crystal Palace", "Brighton", "Tottenham", "Leeds", "Nottingham", "West Ham", "Burnley", "Wolverhampton"],
@@ -90,9 +85,9 @@ ligy_data = {{
     "🇪🇸 La Liga": ["FC Barcelona", "Real Madrid", "Atlético Madrid", "Villarreal", "Betis", "Sevilla", "Espanyol", "Celta Vigo", "Real Sociedad", "Osasuna", "Bilbao", "Getafe", "Girona", "Alavés", "Elche", "Mallorca", "Valencia", "Rayo Vallecano", "Levante", "Oviedo"],
     "🇮🇹 Serie A": ["Inter Milán", "AC Milán", "Neapol", "Juventus", "AS Řím", "Como", "Atalanta Bergamo", "Lazio", "Udinese", "Bologna", "Sassuolo", "Cagliari", "FC Torino", "Parma", "Janov", "Cremonese", "Lecce", "Fiorentina", "Pisa", "Hellas Verona"],
     "🇨🇿 Chance Liga": ["Slavia Praha", "Sparta Praha", "Jablonec", "Plzeň", "Liberec", "Karviná", "Hradec Králové", "Olomouc", "Zlín", "Pardubice", "Teplice", "Bohemians", "Ostrava", "Mladá Boleslav", "Slovácko", "Dukla Praha"]
-}}
+}
 
-# 4. ALGORITMUS (NEDOTČENO)
+# 4. ALGORITMUS
 def get_poisson_probability(lmbda, k):
     return (math.pow(lmbda, k) * math.exp(-lmbda)) / math.factorial(k)
 
@@ -125,11 +120,11 @@ with c2: h_team = st.selectbox("HOSTÉ (🚀):", tymy, index=1 if len(tymy)>1 el
 if st.button("SPUSTIT ANALÝZU"):
     with st.spinner('Analyzuji historii z API...'):
         wh, dr, wa, ds, hs = analyzuj_zapas(d_team, h_team)
-        st.success(f"Analýza dokončena na základě historie posledních zápasů.")
+        st.success(f"Analýza dokončena.")
         r1, r2, r3 = st.columns(3)
-        r1.metric("VÝHRA DOMÁCÍ", f"{{wh}}%")
-        r2.metric("REMIZA", f"{{dr}}%")
-        r3.metric("VÝHRA HOSTÉ", f"{{wa}}%")
+        r1.metric("VÝHRA DOMÁCÍ", f"{wh}%")
+        r2.metric("REMIZA", f"{dr}%")
+        r3.metric("VÝHRA HOSTÉ", f"{wa}%")
         st.markdown("---")
         st.write("### 🚩 DETAILNÍ PŘEDPOVĚĎ (Z HISTORIE API)")
         s1, s2, s3 = st.columns(3)
@@ -153,6 +148,7 @@ st.markdown("""
         <p style='color: #ccc; font-size: 12px; margin: 5px 0 0 0;'>Kontaktujte nás pro exkluzivní spolupráci</p>
     </div>
     """, unsafe_allow_html=True)
+
 
 
 
