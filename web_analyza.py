@@ -3,23 +3,37 @@ import random
 import math
 import os
 
-# 1. DESIGN A TRVALÉ POČITADLO (ZACHOVÁNO)
+# 1. DESIGN A TRVALÉ POČITADLO (ZABEZPEČENO PROTI RESETU)
 st.set_page_config(page_title="ELITE ANALYST PRO 2026", page_icon="⚽", layout="centered")
 
 def manage_total_visits():
     file_path = "total_visits.txt"
+    # Pokud soubor neexistuje, vytvoříme ho s tvou startovní hodnotou
     if not os.path.exists(file_path):
-        with open(file_path, "w") as f: f.write("12540")
+        with open(file_path, "w") as f: 
+            f.write("12540")
+            
+    # Načtení aktuálního čísla ze souboru
     with open(file_path, "r") as f:
-        try: current_total = int(f.read())
-        except: current_total = 12540
-    new_total = current_total + 1
-    with open(file_path, "w") as f: f.write(str(new_total))
-    return new_total
+        try: 
+            current_total = int(f.read().strip())
+        except: 
+            current_total = 12540
+            
+    # Přičtení návštěvy pouze pokud jde o nové otevření stránky (session)
+    if 'session_accounted' not in st.session_state:
+        current_total += 1
+        with open(file_path, "w") as f: 
+            f.write(str(current_total))
+        st.session_state.session_accounted = True
+        
+    return current_total
 
+# Denní počitadlo (resetuje se při zavření prohlížeče)
 if 'pocet_navstev' not in st.session_state:
     st.session_state.pocet_navstev = 312
-st.session_state.pocet_navstev += 1
+    st.session_state.pocet_navstev += 1
+
 celkove_navstevy = manage_total_visits()
 
 st.markdown(f'''
@@ -82,7 +96,7 @@ def fetch_api_stats(team_name, zvolena_liga):
         "cards": round(random.uniform(1.2, 3.0), 1)
     }
 
-# 3. KOMPLETNÍ DATABÁZE (ZACHOVÁNO)
+# 3. KOMPLETNÍ DATABÁZE
 ligy_data = {
     "🏆 Liga mistrů": ["Arsenal", "Bayern Mnichov", "Liverpool", "Tottenham", "FC Barcelona", "Chelsea", "Sporting Lisabon", "Manchester City", "Real Madrid", "Inter Miláno", "Paris Saint-Germain", "Newcastle", "Juventus", "Atletico Madrid", "Atalanta Bergamo", "Leverkusen", "Dortmund", "Olympiakos", "Club Brugge", "Galatasaray", "Monaco", "FK Karabach", "Bodo/Glimt", "Benfica Lisabon", "Marseille", "Paphos FC", "Union SG", "PSV Eindhoven", "Bilbao", "Neapol", "FC Kodaň", "Ajax", "Frankfurt", "Slavia Praha"],
     "🇪🇺 Evropská liga": ["Lyon", "Aston Villa", "Midtjylland", "Betis", "Sevilla", "FC Porto", "Braga", "Freiburg", "AS Řím", "Genk", "Bologna", "Stuttgart", "Ferencváros", "Nottingham", "Plzeň", "Vigo", "PAOK", "Lille", "Fenerbahce", "Panathinaikos", "Celtic Glasgow", "Ludogorec Razgrad", "Dynamo"],
@@ -93,7 +107,7 @@ ligy_data = {
     "🇨🇿 Chance Liga": ["Slavia Praha", "Sparta Praha", "Jablonec", "Plzeň", "Liberec", "Karviná", "Hradec Králové", "Olomouc", "Zlín", "Pardubice", "Teplice", "Bohemians", "Ostrava", "Mladá Boleslav", "Slovácko", "Dukla Praha"]
 }
 
-# 4. ALGORITMUS (+3% DOMÁCÍ BONUS)
+# 4. ALGORITMUS
 def get_poisson_probability(lmbda, k):
     return (math.pow(lmbda, k) * math.exp(-lmbda)) / math.factorial(k)
 
@@ -116,7 +130,7 @@ def analyzuj_zapas(domaci, hoste, liga_nazev):
     
     return int(wh), int(dr), int(wa), ds, hs
 
-# 5. UI S KONTROLOU DUPLICITY
+# 5. UI
 st.title("⚽ PREMIUM ANALYST 2026")
 liga = st.selectbox("ZVOLIT SOUTĚŽ:", list(ligy_data.keys()))
 tymy = sorted(ligy_data[liga])
@@ -127,7 +141,7 @@ with c2: h_team = st.selectbox("HOSTÉ (🚀):", tymy, index=1 if len(tymy)>1 el
 
 if st.button("SPUSTIT ANALÝZU"):
     if d_team == h_team:
-        st.warning("⚠️ CHYBA: Nemůžete vybrat dva stejné týmy proti sobě. Zvolte jiného soupeře.")
+        st.warning("⚠️ CHYBA: Zvolte jiného soupeře.")
     else:
         with st.spinner('Analyzuji historii z API...'):
             wh, dr, wa, ds, hs = analyzuj_zapas(d_team, h_team, liga)
@@ -139,7 +153,7 @@ if st.button("SPUSTIT ANALÝZU"):
             r3.metric("VÝHRA HOSTÉ", f"{wa}%")
             
             st.markdown("---")
-            st.write("### 🚩 DETAILNÍ PŘEDPOVĚĎ (Z HISTORIE API)")
+            st.write("### 🚩 DETAILNÍ PŘEDPOVĚĎ")
             s1, s2, s3 = st.columns(3)
             with s1:
                 st.write("**Očekávané xG**")
@@ -157,7 +171,7 @@ if st.button("SPUSTIT ANALÝZU"):
 st.markdown("""
     <div style='text-align: center; background-color: rgba(0, 50, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px dashed #00ff00; margin-top: 50px;'>
         <p style='color: #90ee90; font-size: 14px; margin: 0; font-weight: bold;'>ZDE MŮŽE BÝT VAŠE REKLAMA</p>
-        <p style='color: #ccc; font-size: 12px; margin: 5px 0 0 0;'>Kontaktujte nás pro exkluzivní spolupráci</p>
+        <p style='color: #ccc; font-size: 12px; margin: 5px 0 0 0;'>trefilos@gmail.com</p>
     </div>
     """, unsafe_allow_html=True)
 
